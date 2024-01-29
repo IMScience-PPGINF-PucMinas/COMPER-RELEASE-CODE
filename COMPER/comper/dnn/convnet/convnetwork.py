@@ -1,26 +1,17 @@
-import numpy as np
-import keras
-from keras.models import Sequential,Model,Input
-from keras.layers import Dense, Dropout, Flatten,Activation,Reshape
-from keras.layers import Conv2D, MaxPooling2D
-from keras.optimizers import RMSprop
-from keras.utils import plot_model
 import tensorflow as tf
 import numpy as np
-import keras.backend as K
 import os
 from comper.config.transitions import FrameTransition as ft
 from comper.config.transitions import FrameTransitionTypes as ft_types
 from comper.config import parameters as param
 from comper.config.exceptions import ExceptionRunType
-#sess = tf.Session()
-#K.set_session(sess)
+
 class ConvNet(object):
     def __init__(self,netparamsdir='./',run_type=param.RunType.TRAIN):
         self.paramsidr = netparamsdir
         self.run_type = run_type
         self.convnet = {}
-        self.optimizer = tf.keras.optimizers.RMSprop(learning_rate=0.00025,decay=0.95,momentum=0.95)
+        self.optimizer = tf.keras.optimizers.RMSprop(learning_rate=0.00025)
     
     def create(self,input_shape,output_dim=18):
         if(ft.TYPE == ft_types.STAKED_FRAMES):
@@ -30,20 +21,20 @@ class ConvNet(object):
     
     def __create_staked_frames_convnet(self,input_shape,output_dim):
         self.convnet = tf.keras.Sequential([            
-            tf.keras.layers.Conv2D(32,(8,8),strides=(4,4),data_format="channels_last",input_shape=input_shape,use_bias=False,name="Conv1"),
-            tf.keras.layers.Conv2D(64, (4,4),strides=(2,2),use_bias=False,name="Conv2"),
-            tf.keras.layers.Conv2D(64, (3,3),strides=(1,1),use_bias=False,name="Conv3"),
+            tf.keras.layers.Conv2D(32,(8,8),strides=(4,4),activation='relu',data_format="channels_last",input_shape=input_shape,use_bias=False,name="Conv1"),
+            tf.keras.layers.Conv2D(64, (4,4),strides=(2,2),activation='relu',use_bias=False,name="Conv2"),
+            tf.keras.layers.Conv2D(64, (3,3),strides=(1,1),activation='relu',use_bias=False,name="Conv3"),
             tf.keras.layers.Flatten(name="Flatten"),
-            tf.keras.layers.Dense(512,use_bias=False,name="Dense512"),
+            tf.keras.layers.Dense(512,activation='relu',use_bias=False,name="Dense512"),
             tf.keras.layers.Dense(output_dim,activation=None,name="DenseOut")
         ])
     def __create_single_frame_convnet(self,input_shape,output_dim):
         self.convnet = tf.keras.Sequential([            
-            tf.keras.layers.Conv2D(32,(8,8),strides=(4,4),data_format="channels_last",input_shape=input_shape,name="Conv1"),
-            tf.keras.layers.Conv2D(64, (4,4),strides=(2,2),name="Conv2"),
-            tf.keras.layers.Conv2D(64, (3,3),strides=(1,1),name="Conv3"),
+            tf.keras.layers.Conv2D(32,(8,8),strides=(4,4),activation='relu',data_format="channels_last",input_shape=input_shape,name="Conv1"),
+            tf.keras.layers.Conv2D(64, (4,4),strides=(2,2),activation='relu',use_bias=False,name="Conv2"),
+            tf.keras.layers.Conv2D(64, (3,3),strides=(1,1),activation='relu',use_bias=False,name="Conv3"),
             tf.keras.layers.Flatten(name="Flatten"),
-            tf.keras.layers.Dense(512,name="Dense512"),
+            tf.keras.layers.Dense(512,activation='relu',use_bias=False,name="Dense512"),
             tf.keras.layers.Dense(output_dim,activation=None,name="DenseOut")
         ])
 
